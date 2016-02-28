@@ -17,6 +17,9 @@ import sys
 import random
 import signal
 
+class TimedOutExc(Exception):
+        pass
+
 def handler(signum, frame):
     #print 'Signal handler called with signal', signum
     raise TimedOutExc()
@@ -44,7 +47,6 @@ class Player1:
 		blocks_allowed  = determine_blocks_allowed(old_move, temp_block)
 		#Get list of empty valid cells
 		cells = get_empty_out_of(temp_board, blocks_allowed,temp_block)
-        # length = cells
 		#Choose a move based on some algorithm, here it is a random move.
 		return cells[random.randrange(len(cells))]
 
@@ -57,14 +59,11 @@ class Player2:
 	def move(self,temp_board,temp_block,old_move,flag):
 		#List of permitted blocks, based on old move.
 		blocks_allowed  = determine_blocks_allowed(old_move, temp_block)
-		# print blocks_allowed
 		#Get list of empty valid cells
 		cells = get_empty_out_of(temp_board, blocks_allowed,temp_block)
-		print cells
 		#Choose a move based on some algorithm, here it is a random move.
 		return cells[random.randrange(len(cells))]
 
-# determine which blocks are allowed to move-in
 def determine_blocks_allowed(old_move, block_stat):
 	blocks_allowed = []
 	if old_move[0] % 3 == 0 and old_move[1] % 3 == 0:
@@ -116,13 +115,14 @@ def get_empty_out_of(gameb, blal,block_stat):
 	cells = []  # it will be list of tuples
 	#Iterate over possible blocks and get empty cells
 	for idb in blal:
-		id1 = idb/3 #determine row
-		id2 = idb%3 # determine column
+		id1 = idb/3
+		id2 = idb%3
 		for i in range(id1*3,id1*3+3):
 			for j in range(id2*3,id2*3+3):
 				if gameb[i][j] == '-':
 					cells.append((i,j))
-    # If all the possible blocks are full, you can move anywhere
+
+	# If all the possible blocks are full, you can move anywhere
 	if cells == []:
 		new_blal = []
 		all_blal = [0,1,2,3,4,5,6,7,8]
@@ -137,7 +137,7 @@ def get_empty_out_of(gameb, blal,block_stat):
 				for j in range(id2*3,id2*3+3):
 					if gameb[i][j] == '-':
 						cells.append((i,j))
-        return cells
+	return cells
 
 # Returns True if move is valid
 def check_valid_move(game_board, block_stat, current_move, old_move):
@@ -187,8 +187,6 @@ def update_lists(game_board, block_stat, move_ret, fl):
 			if game_board[i][j] == '-':
 				flag = 1
 
-	if flag == 0:
-		block_stat[block_no] = 'D'
 
 	if block_stat[block_no] == '-':
 		if game_board[id1*3][id2*3] == game_board[id1*3+1][id2*3+1] and game_board[id1*3+1][id2*3+1] == game_board[id1*3+2][id2*3+2] and game_board[id1*3+1][id2*3+1] != '-' and game_board[id1*3+1][id2*3+1] != 'D':
@@ -205,6 +203,8 @@ def update_lists(game_board, block_stat, move_ret, fl):
                         if game_board[i][id2*3]==game_board[i][id2*3+1] and game_board[i][id2*3+1] == game_board[i][id2*3+2] and game_board[i][id2*3] != '-' and game_board[i][id2*3] != 'D':
                                 mflg = 1
                                 break
+	if flag == 0:
+		block_stat[block_no] = 'D'
 	if mflg == 1:
 		block_stat[block_no] = fl
 
@@ -296,7 +296,7 @@ def simulate(obj1,obj2):
 
 	WINNER = ''
 	MESSAGE = ''
-	TIMEALLOWED = 12000
+	TIMEALLOWED = 12
 	p1_pts=0
 	p2_pts=0
 
@@ -304,21 +304,19 @@ def simulate(obj1,obj2):
 
 	while(1): # Main game loop
 
-		command = raw_input("command :")
-		
 		temp_board_state = game_board[:]
 		temp_block_stat = block_stat[:]
 
 		signal.signal(signal.SIGALRM, handler)
 		signal.alarm(TIMEALLOWED)
-		ret_move_pl1 = pl1.move(temp_board_state, temp_block_stat, old_move, pl1_fl)
+		#		ret_move_pl1 = pl1.move(temp_board_state, temp_block_stat, old_move, pl1_fl)
 
-        #		try:
-        #			ret_move_pl1 = pl1.move(temp_board_state, temp_block_stat, old_move, pl1_fl)
-        #		except:
-        #			WINNER, MESSAGE = decide_winner_and_get_message('P1', 'L',   'TIMED OUT')
-        #			print MESSAGE
-        #			break
+		try:
+			ret_move_pl1 = pl1.move(temp_board_state, temp_block_stat, old_move, pl1_fl)
+		except:
+			WINNER, MESSAGE = decide_winner_and_get_message('P1', 'L',   'TIMED OUT')
+		#	print MESSAGE
+			break
 		signal.alarm(0)
 
 		# Check if list is tampered.
@@ -387,7 +385,6 @@ def simulate(obj1,obj2):
 if __name__ == '__main__':
 	## get game playing objects
 
-	#  a nice to ay handle errors**
 	if len(sys.argv) != 2:
 		print 'Usage: python simulator.py <option>'
 		print '<option> can be 1 => Random player vs. Random player'
