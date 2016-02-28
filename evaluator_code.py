@@ -16,6 +16,8 @@ In case of any queries, please post on moodle.iiit.ac.in
 import sys
 import random
 import signal
+global depth_limit
+depth_limit = 4
 
 def handler(signum, frame):
     #print 'Signal handler called with signal', signum
@@ -30,8 +32,6 @@ class ManualPlayer:
 		mvp = raw_input()
 		mvp = mvp.split()
 		return (int(mvp[0]), int(mvp[1]))
-
-
 
 class Player1:
 
@@ -48,11 +48,13 @@ class Player1:
 		#Choose a move based on some algorithm, here it is a random move.
 		return cells[random.randrange(len(cells))]
 
+
 class Player2:
 
 	def __init__(self):
 		# You may initialize your object here and use any variables for storing throughout the game
 		pass
+
 
 	def move(self,temp_board,temp_block,old_move,flag):
 		#List of permitted blocks, based on old move.
@@ -61,8 +63,159 @@ class Player2:
 		#Get list of empty valid cells
 		cells = get_empty_out_of(temp_board, blocks_allowed,temp_block)
 		print cells
+		for i in cells:
+			print i
+			temp_board[i[0]][i[1]]='o'
+
+			utility_value  = built_tree(temp_board,temp_block,i,1)
+			# utility(temp_board,temp_block)
+			temp_board[i[0]][i[1]]='-'
+			# evalutor()
 		#Choose a move based on some algorithm, here it is a random move.
-		return cells[random.randrange(len(cells))]
+		# return cells[random.randrange(len(cells))]
+
+
+def built_tree(temp_board,temp_block,old_move,depth):
+	# making recursive tree
+	# define albl from input cells
+	global depth_limit
+	if depth == depth_limit+1:
+		#define utility value
+		utility_value = utility(temp_board,temp_block,old_move)
+		return utility_value
+	else:
+		#List of permitted blocks, based on old move.
+		blocks_allowed  = determine_blocks_allowed(old_move, temp_block)
+		# print blocks_allowed
+		#Get list of empty valid cells
+		cells = get_empty_out_of(temp_board, blocks_allowed,temp_block)
+		for i in cells:
+			# utility(temp_board,temp_block)
+			if (depth%2) == 1:
+				temp_board[i[0]][i[1]]='x'
+			else:
+				temp_board[i[0]][i[1]]='o'
+			depth += 1
+			utility value = built_tree(temp_board,temp_block,i,depth)
+			# evalutor()
+			temp_board[i[0]][i[1]]='-'
+			depth -= 1
+
+def utility(board_game,block_stat,move):
+	# determine utility value
+	# 8 lines
+	# decide utility value for each state
+	print_lists(board_game,block_stat)
+	command = raw_input("utility:")
+	utility = 0
+
+	# defining position of block
+	tempx = move[0]%3
+	tempy = move[1]%3
+	tempx *= 3;
+	tempy *= 3
+
+	# defining new temp_block
+	for i in range(3):
+		for j in range(3):
+			temp_block[i][j] = board_game[i+tempx][j+tempy]
+
+	# counting number of 'x' and 'o' to assign utility value
+	for i in range(3):
+		count1 = 0
+		count2 = 0
+		for j in range(3):
+			if temp_block[i][j] == 'o':
+				count2++;
+			elif temp_block[i][j] == 'x':
+				count1++;
+		if count2 == 3:
+			utility += 100
+		elif count2 == 2:
+			utility += 10
+		elif count2 == 1:
+			utility += 1
+		if count1 == 3:
+			utility -= 100
+		elif count1 == 2:
+			utility -= 10
+		elif count1 == 1:
+			utility -= 1
+
+	for j in range(3):
+		count1 = 0
+		count2 = 0
+		for i in range(3):
+			if temp_block[i][j] == 'o':
+				count2++;
+			elif temp_block[i][j] == 'x':
+				count1++;
+		if count2 == 3:
+			utility += 100
+		elif count2 == 2:
+			utility += 10
+		elif count2 == 1:
+			utility += 1
+		if count1 == 3:
+			utility -= 100
+		elif count1 == 2:
+			utility -= 10
+		elif count1 == 1:
+			utility -= 1
+
+	count1 = 0
+	count2 = 0
+	for j in range(3):
+		for i in range(3):
+			if i==j:
+				if temp_block[i][j] == 'o':
+					count2++;
+				elif temp_block[i][j] == 'x':
+					count1++;
+	if count2 == 3:
+		utility += 100
+	elif count2 == 2:
+		utility += 10
+	elif count2 == 1:
+		utility += 1
+	if count1 == 3:
+		utility -= 100
+	elif count1 == 2:
+		utility -= 10
+	elif count1 == 1:
+		utility -= 1
+
+	count1 = 0
+	count2 = 0
+	for j in range(3):
+		for i in range(3):
+			if i==1 and j==1 or i==0 and j ==2 or i==2 and j==0:
+				if temp_block[i][j] == 'o':
+					count2++;
+				elif temp_block[i][j] == 'x':
+					count1++;
+	if count2 == 3:
+		utility += 100
+	elif count2 == 2:
+		utility += 10
+	elif count2 == 1:
+	if count1 == 3:
+		utility += 1
+		utility -= 100
+	elif count1 == 2:
+		utility -= 10
+	elif count1 == 1:
+		utility -= 1
+
+	return utility
+
+
+
+# def evalutor(block_stat,board_state):
+	# including alpha-beta pruning
+
+
+
 
 # determine which blocks are allowed to move-in
 def determine_blocks_allowed(old_move, block_stat):
@@ -296,7 +449,7 @@ def simulate(obj1,obj2):
 
 	WINNER = ''
 	MESSAGE = ''
-	TIMEALLOWED = 12000
+	TIMEALLOWED = 1200000000
 	p1_pts=0
 	p2_pts=0
 
@@ -304,8 +457,9 @@ def simulate(obj1,obj2):
 
 	while(1): # Main game loop
 
-		command = raw_input("command :")
-		
+	 command = raw_input("command :")
+	 if command == "q":
+
 		temp_board_state = game_board[:]
 		temp_block_stat = block_stat[:]
 
@@ -349,15 +503,15 @@ def simulate(obj1,obj2):
         	temp_board_state = game_board[:]
         	temp_block_stat = block_stat[:]
 
-        	signal.signal(signal.SIGALRM, handler)
-        	signal.alarm(TIMEALLOWED)
+        	# signal.signal(signal.SIGALRM, handler)
+        	# signal.alarm(TIMEALLOWED)
 
-        	try:
-           		ret_move_pl2 = pl2.move(temp_board_state, temp_block_stat, old_move, pl2_fl)
-        	except:
-			WINNER, MESSAGE = decide_winner_and_get_message('P2', 'L',   'TIMED OUT')
-			break
-        	signal.alarm(0)
+       		ret_move_pl2 = pl2.move(temp_board_state, temp_block_stat, old_move, pl2_fl)
+        	# try:
+        	# except:
+			# WINNER, MESSAGE = decide_winner_and_get_message('P2', 'L',   'TIMED OUT')
+			# break
+        	# signal.alarm(0)
 
         	if not (verification_fails_board(game_board, temp_board_state) and verification_fails_block(block_stat, temp_block_stat)):
 			WINNER, MESSAGE = decide_winner_and_get_message('P2', 'L',   'MODIFIED CONTENTS OF LISTS')
