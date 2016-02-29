@@ -27,6 +27,7 @@ points = 0
 depth_limit = 4
 draw = 0
 more_blocks = 0
+
 def handler(signum, frame):
     #print 'Signal handler called with signal', signum
     raise TimedOutExc()
@@ -85,13 +86,12 @@ class Player2:
 		for i in cells:
 			if beta >alpha :
 				temp_board[i[0]][i[1]]=p1
+				# print i
 				utility_child  = built_tree(temp_board,temp_block,i,1,alpha,beta,p1,p2)
 				if beta > utility_child:
 					beta = utility_child
 					move = i
 				temp_board[i[0]][i[1]]='-'
-		#Choose a move based on some algorithm, here it is a random move.
-		# return cells[random.randrange(len(cells))]
 
 		return move
 
@@ -109,7 +109,9 @@ def built_tree(temp_board,temp_block,old_move,depth,alpha_p,beta_p,p1,p2):
 
 	if depth == depth_limit+1 or cells == []:
 		#define utility value
-		utility_value = utility(temp_board,temp_block,old_move,alpha,beta,p1,p2)
+		# print "got"
+		# print "blocks_allowed=",blocks_allowed,"move = ",old_move
+		utility_value = utility(temp_board,temp_block,old_move,alpha,beta,p1,p2,depth)
 		return utility_value
 
 	else:
@@ -120,11 +122,10 @@ def built_tree(temp_board,temp_block,old_move,depth,alpha_p,beta_p,p1,p2):
 				if (depth%2) == 1:
 					# max
 					temp_board[i[0]][i[1]]=p1
+					# print "hello",depth
 					utility_child = built_tree(temp_board,temp_block,i,depth,alpha,beta,p1,p2)
 					if alpha < utility_child:
 						alpha = utility_child
-
-					# evalutor(utility_value,utility_child,depth)
 				else:
 					# min
 					temp_board[i[0]][i[1]]=p2
@@ -141,7 +142,7 @@ def built_tree(temp_board,temp_block,old_move,depth,alpha_p,beta_p,p1,p2):
 			return beta
 
 
-def utility(board_game,block_stat,move,alpha,beta,p1,p2):
+def utility(board_game,block_stat,move,alpha,beta,p1,p2,depth):
 	# determine utility value
 	# 8 lines
 	# decide utility value for each state
@@ -150,12 +151,20 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2):
 	utility = 0
 
 	# defining position of block
-	tempx = move[0]%3
-	tempy = move[1]%3
+	tempx = move[0]/3
+	tempy = move[1]/3
+	# print "tempx=",tempx,"tempy=",tempy
+	temp_block_cell = tempx*3 + tempy
 	tempx *= 3;
 	tempy *= 3
 	temp_board = [[0 for x in range(3)] for x in range(3)]
-
+	if (depth%2) == 1:
+		block_stat[temp_block_cell] = p1
+	# # print block_stat
+	else:
+		block_stat[temp_block_cell] = p2
+	# print "cell =",temp_block_cell
+	# temp_block = [[0 for x in range(3)] for x in range(3)]
 
 	# defining new temp_board
 	for i in range(3):
@@ -166,11 +175,20 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2):
 	for i in range(3):
 		count1 = 0
 		count2 = 0
+		count3 = 0
+		count4 = 0
 		for j in range(3):
 			if temp_board[i][j] == p1:
 				count2 += 1
 			elif temp_board[i][j] == p2:
 				count1 += 1
+			if block_stat[i*3+j] == p1:
+				count3 += 1
+			elif block_stat[i*3+j] == p2:
+				count4 += 1
+			# print "acha"
+
+		# print ":done"
 		if count2 == 3:
 			utility += 100
 		elif count2 == 2:
@@ -183,15 +201,33 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2):
 			utility -= 10
 		elif count1 == 1:
 			utility -= 1
+		if count3 == 3:
+			utility += 500
+		elif count3 == 2:
+			utility += 50
+		elif count3 == 1:
+			utility += 5
+		if count4 == 3:
+			utility -= 500
+		elif count4 == 2:
+			utility -= 50
+		elif count4 == 1:
+			utility -= 5
 
 	for j in range(3):
 		count1 = 0
 		count2 = 0
+		count3 = 0
+		count4 = 0
 		for i in range(3):
 			if temp_board[i][j] == p1:
 				count2 += 1
 			elif temp_board[i][j] == p2:
 				count1 += 1
+			if block_stat[i*3+j] == p1:
+				count3 += 1
+			elif block_stat[i*3+j] == p2:
+				count4 += 1
 		if count2 == 3:
 			utility += 100
 		elif count2 == 2:
@@ -204,9 +240,23 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2):
 			utility -= 10
 		elif count1 == 1:
 			utility -= 1
+		if count3 == 3:
+			utility += 500
+		elif count3 == 2:
+			utility += 50
+		elif count3 == 1:
+			utility += 5
+		if count4 == 3:
+			utility -= 500
+		elif count4 == 2:
+			utility -= 50
+		elif count4 == 1:
+			utility -= 5
 
 	count1 = 0
 	count2 = 0
+	count3 = 0
+	count4 = 0
 	for j in range(3):
 		for i in range(3):
 			if i==j:
@@ -214,6 +264,10 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2):
 					count2 += 1
 				elif temp_board[i][j] == p2:
 					count1 += 1
+				if block_stat[i*3+j] == p1:
+					count3 += 1
+				elif block_stat[i*3+j] == p2:
+					count4 += 1
 	if count2 == 3:
 		utility += 100
 	elif count2 == 2:
@@ -226,9 +280,23 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2):
 		utility -= 10
 	elif count1 == 1:
 		utility -= 1
+	if count3 == 3:
+		utility += 500
+	elif count3 == 2:
+		utility += 50
+	elif count3 == 1:
+		utility += 5
+	if count4 == 3:
+		utility -= 500
+	elif count4 == 2:
+		utility -= 50
+	elif count4 == 1:
+		utility -= 5
 
 	count1 = 0
 	count2 = 0
+	count3 = 0
+	count4 = 0
 	for j in range(3):
 		for i in range(3):
 			if i==1 and j==1 or i==0 and j ==2 or i==2 and j==0:
@@ -236,6 +304,10 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2):
 					count2 += 1
 				elif temp_board[i][j] == p2:
 					count1 += 1
+				if block_stat[i*3+j] == p1:
+					count3 += 1
+				elif block_stat[i*3+j] == p2:
+					count4 += 1
 	if count2 == 3:
 		utility += 100
 	elif count2 == 2:
@@ -249,6 +321,23 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2):
 		utility -= 10
 	elif count1 == 1:
 		utility -= 1
+	if count3 == 3:
+		utility += 500
+	elif count3 == 2:
+		utility += 50
+	elif count3 == 1:
+		utility += 5
+	if count4 == 3:
+		utility -= 500
+	elif count4 == 2:
+		utility -= 50
+	elif count4 == 1:
+		utility -= 5
+	
+	if (depth%2) == 1:
+		block_stat[temp_block_cell] = '-'	
+	else:
+		block_stat[temp_block_cell] = '-'
 
 	return utility
 
@@ -579,23 +668,27 @@ def simulate(obj1,obj2):
 	global num
 	if num > 0.5:
 		# print "you are player1"
-		if MESSAGE == "MORE BLOCKS":
-			more_blocks += 1
-		elif MESSAGE == "DRAW":
+		# if MESSAGE == "MORE BLOCKS" and WINNER == "P1":
+		# 	points += 1
+		if MESSAGE == "DRAW":
 			draw += 1
 		elif WINNER == "P1" :
 			points += 1
 		else:
 			loss += 1
+			print WINNER,MESSAGE
 	else:
-		if MESSAGE == "MORE BLOCKS":
-			more_blocks += 1
-		elif MESSAGE == "DRAW":
+		# if MESSAGE == "MORE BLOCKS":
+		# 	more_blocks += 1
+		if MESSAGE == "DRAW":
 			draw += 1
 		elif WINNER == "P2":
 			points += 1
 		else:
 			loss += 1
+			print WINNER,MESSAGE
+	if MESSAGE == "MADE AN INVALID MOVE"	or MESSAGE == "TIMED OUT":
+		print MESSAGE
 
 	# command = raw_input("points:")
 
@@ -630,7 +723,7 @@ if __name__ == '__main__':
 	t = 1
 
 	global num
-	while t != 4:
+	while t != 201:
 		print (t)
 
 		num = random.uniform(0,1)
@@ -645,5 +738,5 @@ if __name__ == '__main__':
 		t+=1
 	print "your points = " , points
 	print "draw = " , draw
-	print "more_blocks = " , more_blocks
+	# print "more_blocks = " , more_blocks
 	print "you loss = ",loss
