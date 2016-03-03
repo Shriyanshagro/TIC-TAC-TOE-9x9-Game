@@ -1,4 +1,4 @@
-class Player2:
+class Player58:
 
 	def __init__(self):
 		# You may initialize your object here and use any variables for storing throughout the game
@@ -32,7 +32,6 @@ class Player2:
 		for i in cells:
 			if beta >alpha :
 				temp_board[i[0]][i[1]]=p1
-				# print i
 				utility_child  = built_tree(temp_board,temp_block,i,1,alpha,beta,p1,p2)
 				if beta > utility_child:
 					beta = utility_child
@@ -150,35 +149,11 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2,depth):
 			# print "acha"
 
 		# print ":done"
-		if count2 == 3:
-			utility_p1 += 100
-		elif count2 == 2:
-			utility_p1 += 10
-		elif count2 == 2 and count1 == 1:
-			utility_p1 -= 9.5
-		elif count2 == 1:
-			utility_p1 += 1
-		if count1 == 3:
-			utility_p2 -= 100
-		elif count1 == 2:
-			utility_p2 -= 10
-		elif count1 == 2 and count2 == 1:
-			utility_p1 += 9.5
-		elif count1 == 1:
-			utility_p2 -= 1
-		if count3 == 3:
-			utility_stat += 500
-		elif count3 == 2:
-			utility_stat += 50
-		elif count3 == 1:
-			utility_stat += 5
-		if count4 == 3:
-			utility_stat -= 500
-		elif count4 == 2:
-			utility_stat -= 50
-		elif count4 == 1:
-			utility_stat -= 5
-
+		utilityarray = define_utility(count1,count2,count3,count4)
+		utility_p1 += utilityarray[0]
+		utility_p2 += utilityarray[1]
+		utility_stat += utilityarray[2]
+		
 	# counting in a column
 	for j in range(3):
 		count1 = 0
@@ -194,35 +169,12 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2,depth):
 				count3 += 1
 			elif block_stat[i*3+j] == p2:
 				count4 += 1
-		if count2 == 3:
-			utility_p1 += 100
-		elif count2 == 2:
-			utility_p1 += 10
-		elif count2 == 2 and count1 == 1:
-			utility_p1 -= 9.5
-		elif count2 == 1:
-			utility_p1 += 1
-		if count1 == 3:
-			utility_p2 -= 100
-		elif count1 == 2:
-			utility_p2 -= 10
-		elif count1 == 2 and count2 == 1:
-			utility_p1 += 9.5
-		elif count1 == 1:
-			utility_p2 -= 1
-		if count3 == 3:
-			utility_stat += 500
-		elif count3 == 2:
-			utility_stat += 50
-		elif count3 == 1:
-			utility_stat += 5
-		if count4 == 3:
-			utility_stat -= 500
-		elif count4 == 2:
-			utility_stat -= 50
-		elif count4 == 1:
-			utility_stat -= 5
 
+		utilityarray = define_utility(count1,count2,count3,count4)
+		utility_p1 += utilityarray[0]
+		utility_p2 += utilityarray[1]
+		utility_stat += utilityarray[2]
+		
 	count1 = 0
 	count2 = 0
 	count3 = 0
@@ -238,35 +190,10 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2,depth):
 					count3 += 1
 				elif block_stat[i*3+j] == p2:
 					count4 += 1
-				# print i
-	if count2 == 3:
-		utility_p1 += 100
-	elif count2 == 2:
-		utility_p1 += 10
-	elif count2 == 2 and count1 == 1:
-		utility_p1 -= 9.5
-	elif count2 == 1:
-		utility_p1 += 1
-	if count1 == 3:
-		utility_p2 -= 100
-	elif count1 == 2:
-		utility_p2 -= 10
-	elif count1 == 2 and count2 == 1:
-		utility_p1 += 9.5
-	elif count1 == 1:
-		utility_p2 -= 1
-	if count3 == 3:
-		utility_stat += 500
-	elif count3 == 2:
-		utility_stat += 50
-	elif count3 == 1:
-		utility_stat += 5
-	if count4 == 3:
-		utility_stat -= 500
-	elif count4 == 2:
-		utility_stat -= 50
-	elif count4 == 1:
-		utility_stat -= 5
+	utilityarray = define_utility(count1,count2,count3,count4)
+	utility_p1 += utilityarray[0]
+	utility_p2 += utilityarray[1]
+	utility_stat += utilityarray[2]
 
 	count1 = 0
 	count2 = 0
@@ -283,34 +210,11 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2,depth):
 					count3 += 1
 				elif block_stat[i*3+j] == p2:
 					count4 += 1
-	if count2 == 3:
-		utility_p1 += 100
-	elif count2 == 2:
-		utility_p1 += 10
-	elif count2 == 2 and count1 == 1:
-		utility_p1 -= 9.5
-	elif count2 == 1:
-		utility_p1 += 1
-	if count1 == 3:
-		utility_p2 -= 100
-	elif count1 == 2:
-		utility_p2 -= 10
-	elif count1 == 2 and count2 == 1:
-		utility_p1 += 9.5
-	elif count1 == 1:
-		utility_p2 -= 1
-	if count3 == 3:
-		utility_stat += 500
-	elif count3 == 2:
-		utility_stat += 50
-	elif count3 == 1:
-		utility_stat += 5
-	if count4 == 3:
-		utility_stat -= 500
-	elif count4 == 2:
-		utility_stat -= 50
-	elif count4 == 1:
-		utility_stat -= 5
+
+	utilityarray = define_utility(count1,count2,count3,count4)
+	utility_p1 += utilityarray[0]
+	utility_p2 += utilityarray[1]
+	utility_stat += utilityarray[2]
 	
 	if (depth%2) == 1:
 		block_stat[temp_block_cell] = '-'
@@ -381,3 +285,42 @@ def determine_blocks_allowed(old_move, block_stat):
 		if block_stat[i] == '-':
 			final_blocks_allowed.append(i)
 	return final_blocks_allowed
+
+def define_utility(count1,count2,count3,count4):
+
+		utility_p1 = utility_p2 = utility_stat = 0
+		if count2 == 3:
+			utility_p1 += 100
+		elif count2 == 2:
+			utility_p1 += 10
+		elif count2 == 2 and count1 == 1:
+			utility_p1 -= 9.5
+		elif count2 == 1:
+			utility_p1 += 1
+		elif count2 == 1 and count1 == 2:
+			utility_p1 += 50
+		if count1 == 3:
+			utility_p2 -= 100
+		elif count1 == 2:
+			utility_p2 -= 10
+		elif count1 == 2 and count2 == 1:
+			utility_p1 += 9.5
+		elif count1 == 1:
+			utility_p2 -= 1
+		elif count2 == 2 and count1 == 1:
+			utility_p1 -= 50
+		if count3 == 3:
+			utility_stat += 500
+		elif count3 == 2:
+			utility_stat += 50
+		elif count3 == 1:
+			utility_stat += 5
+		if count4 == 3:
+			utility_stat -= 500
+		elif count4 == 2:
+			utility_stat -= 50
+		elif count4 == 1:
+			utility_stat -= 5
+
+		utilityarray = [utility_p1,utility_p2,utility_stat]
+		return utilityarray

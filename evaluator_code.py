@@ -252,7 +252,8 @@ def decide_winner_and_get_message(player,status, message):
 
 
 def print_lists(gb, bs):
-	# # command = raw_input("??")
+	# command = raw_input("??")
+	# time.sleep(1)
 	# print '=========== Game Board ==========='
 	# for i in range(9):
 	# 	if i > 0 and i % 3 == 0:
@@ -290,7 +291,7 @@ def simulate(obj1,obj2):
 
 	WINNER = ''
 	MESSAGE = ''
-	TIMEALLOWED = 1200000000
+	TIMEALLOWED = 12
 	p1_pts=0
 	p2_pts=0
 
@@ -424,10 +425,10 @@ if __name__ == '__main__':
 	option = sys.argv[1]
 	if option == '1':
 		obj1 = Player1()
-		obj2 = Player2()
+		obj2 = Player58()
 
 	elif option == '2':
-		obj1 = Player2()
+		obj1 = Player58()
 		obj2 = ManualPlayer()
 	elif option == '3':
 		obj1 = ManualPlayer()
