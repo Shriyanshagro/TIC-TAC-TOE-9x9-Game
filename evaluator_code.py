@@ -441,7 +441,7 @@ if __name__ == '__main__':
 	t = 1
 
 	global num
-	while t !=51:
+	while t !=2:
 		print "Game_play ",t
 
 		num = random.uniform(0,1)

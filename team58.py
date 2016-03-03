@@ -63,7 +63,7 @@ class Player58:
 def built_tree(temp_board,temp_block,old_move,depth,alpha_p,beta_p,p1,p2):
 	# making recursive tree
 	# assigning alpha-beta for current node
-	depth_limit = 3
+	depth_limit = 5
 	alpha = alpha_p
 	beta = beta_p
 	#List of permitted blocks, based on old move.
@@ -77,7 +77,7 @@ def built_tree(temp_board,temp_block,old_move,depth,alpha_p,beta_p,p1,p2):
 		depth += 1
 		for i in cells:
 			# utility(temp_board,temp_block)
-			# if beta > alpha :
+			if beta > alpha :
 				if ((depth)%2) == 1:
 					# max
 					temp_board[i[0]][i[1]]=p2
