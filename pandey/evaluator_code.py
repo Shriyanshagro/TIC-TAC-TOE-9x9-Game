@@ -12,26 +12,21 @@ The structure of the code is as below:
 In case of any queries, please post on moodle.iiit.ac.in
 
 '''
-
+#from FINAL import Player1
 import sys
 import random
 import signal
-import time
-from team58 import *
-from team27 import *
+from team10 import Team10
+from team27 import Player27
+from team58 import Player58
 
-global points
-global more_blocks
-global draw
-global loss
-loss =0
-points = 0
-draw = 0
-more_blocks = 0
+class TimedOutExc(Exception):
+        pass
 
 def handler(signum, frame):
     #print 'Signal handler called with signal', signum
     raise TimedOutExc()
+
 
 class ManualPlayer:
 	def __init__(self):
@@ -42,7 +37,9 @@ class ManualPlayer:
 		mvp = mvp.split()
 		return (int(mvp[0]), int(mvp[1]))
 
-class Player1:
+
+
+class Player:
 
 	def __init__(self):
 		# You may initialize your object here and use any variables for storing throughout the game
@@ -53,11 +50,23 @@ class Player1:
 		blocks_allowed  = determine_blocks_allowed(old_move, temp_block)
 		#Get list of empty valid cells
 		cells = get_empty_out_of(temp_board, blocks_allowed,temp_block)
-        # length = cells
 		#Choose a move based on some algorithm, here it is a random move.
 		return cells[random.randrange(len(cells))]
 
-# determine which blocks are allowed to move-in
+class Player2:
+
+	def __init__(self):
+		# You may initialize your object here and use any variables for storing throughout the game
+		pass
+
+	def move(self,temp_board,temp_block,old_move,flag):
+		#List of permitted blocks, based on old move.
+		blocks_allowed  = determine_blocks_allowed(old_move, temp_block)
+		#Get list of empty valid cells
+		cells = get_empty_out_of(temp_board, blocks_allowed,temp_block)
+		#Choose a move based on some algorithm, here it is a random move.
+		return cells[random.randrange(len(cells))]
+
 def determine_blocks_allowed(old_move, block_stat):
 	blocks_allowed = []
 	if old_move[0] % 3 == 0 and old_move[1] % 3 == 0:
@@ -109,13 +118,14 @@ def get_empty_out_of(gameb, blal,block_stat):
 	cells = []  # it will be list of tuples
 	#Iterate over possible blocks and get empty cells
 	for idb in blal:
-		id1 = idb/3 #determine row
-		id2 = idb%3 # determine column
+		id1 = idb/3
+		id2 = idb%3
 		for i in range(id1*3,id1*3+3):
 			for j in range(id2*3,id2*3+3):
 				if gameb[i][j] == '-':
 					cells.append((i,j))
-    # If all the possible blocks are full, you can move anywhere
+
+	# If all the possible blocks are full, you can move anywhere
 	if cells == []:
 		new_blal = []
 		all_blal = [0,1,2,3,4,5,6,7,8]
@@ -130,7 +140,7 @@ def get_empty_out_of(gameb, blal,block_stat):
 				for j in range(id2*3,id2*3+3):
 					if gameb[i][j] == '-':
 						cells.append((i,j))
-        return cells
+	return cells
 
 # Returns True if move is valid
 def check_valid_move(game_board, block_stat, current_move, old_move):
@@ -180,8 +190,6 @@ def update_lists(game_board, block_stat, move_ret, fl):
 			if game_board[i][j] == '-':
 				flag = 1
 
-	if flag == 0:
-		block_stat[block_no] = 'D'
 
 	if block_stat[block_no] == '-':
 		if game_board[id1*3][id2*3] == game_board[id1*3+1][id2*3+1] and game_board[id1*3+1][id2*3+1] == game_board[id1*3+2][id2*3+2] and game_board[id1*3+1][id2*3+1] != '-' and game_board[id1*3+1][id2*3+1] != 'D':
@@ -198,6 +206,8 @@ def update_lists(game_board, block_stat, move_ret, fl):
                         if game_board[i][id2*3]==game_board[i][id2*3+1] and game_board[i][id2*3+1] == game_board[i][id2*3+2] and game_board[i][id2*3] != '-' and game_board[i][id2*3] != 'D':
                                 mflg = 1
                                 break
+	if flag == 0:
+		block_stat[block_no] = 'D'
 	if mflg == 1:
 		block_stat[block_no] = fl
 
@@ -253,27 +263,24 @@ def decide_winner_and_get_message(player,status, message):
 
 
 def print_lists(gb, bs):
-	# command = raw_input("??")
-	# # time.sleep(1)
-	# print '=========== Game Board ==========='
-	# for i in range(9):
-	# 	if i > 0 and i % 3 == 0:
-	# 		print
-	# 	for j in range(9):
-	# 		if j > 0 and j % 3 == 0:
-	# 			print " " + gb[i][j],
-	# 		else:
-	# 			print gb[i][j],
-	# 	print
-	#
-	# print "=================================="
-	#
-	# print "=========== Block Status ========="
-	# for i in range(0, 9, 3):
-	# 	print bs[i] + " " + bs[i+1] + " " + bs[i+2]
-	# print "=================================="
-	# print
-	return
+	print '=========== Game Board ==========='
+	for i in range(9):
+		if i > 0 and i % 3 == 0:
+			print
+		for j in range(9):
+			if j > 0 and j % 3 == 0:
+				print " " + gb[i][j],
+			else:
+				print gb[i][j],
+
+		print
+	print "=================================="
+
+	print "=========== Block Status ========="
+	for i in range(0, 9, 3):
+		print bs[i] + " " + bs[i+1] + " " + bs[i+2]
+	print "=================================="
+	print
 
 
 def simulate(obj1,obj2):
@@ -305,14 +312,14 @@ def simulate(obj1,obj2):
 
 		signal.signal(signal.SIGALRM, handler)
 		signal.alarm(TIMEALLOWED)
-		#		ret_move_pl1 = pl1.move(temp_board_state, temp_block_stat, old_move, pl1_fl)
+#		ret_move_pl1 = pl1.move(temp_board_state, temp_block_stat, old_move, pl1_fl)
 
-		try:
+		if 1==1:
 			ret_move_pl1 = pl1.move(temp_board_state, temp_block_stat, old_move, pl1_fl)
-		except:
-			WINNER, MESSAGE = decide_winner_and_get_message('P1', 'L',   'TIMED OUT')
+		#except:
+		#	WINNER, MESSAGE = decide_winner_and_get_message('P1', 'L',   'TIMED OUT')
 		#	print MESSAGE
-			break
+		#	break
 		signal.alarm(0)
 
 		# Check if list is tampered.
@@ -326,7 +333,7 @@ def simulate(obj1,obj2):
 			break
 
 
-		# print "Player 1 made the move:", ret_move_pl1, 'with', pl1_fl
+		print "Player 1 made the move:", ret_move_pl1, 'with', pl1_fl
 		# Update the 'game_board' and 'block_stat' move
 		p1_pts += update_lists(game_board, block_stat, ret_move_pl1, pl1_fl)
 
@@ -361,7 +368,7 @@ def simulate(obj1,obj2):
 			WINNER, MESSAGE = decide_winner_and_get_message('P2', 'L',   'MADE AN INVALID MOVE')
 			break
 
-        	# print "Player 2 made the move:", ret_move_pl2, 'with', pl2_fl
+        	print "Player 2 made the move:", ret_move_pl2, 'with', pl2_fl
 
         	p2_pts += update_lists(game_board, block_stat, ret_move_pl2, pl2_fl)
 
@@ -375,45 +382,12 @@ def simulate(obj1,obj2):
 			old_move = ret_move_pl2
 			print_lists(game_board, block_stat)
 
-	# print WINNER
-	# print MESSAGE
-	# print p2_pts,p1_pts
-	# print WINNER,MESSAGE
-	global points
-	global more_blocks
-	global draw
-	global loss
-	global num
-	if num > 0.5:
-		# print "you are player1"
-		# if MESSAGE == "MORE BLOCKS" and WINNER == "P1":
-		# 	points += 1
-		if MESSAGE == "DRAW":
-			draw += 1
-		elif WINNER == "P1" :
-			points += 1
-		else:
-			loss += 1
-			print WINNER,MESSAGE
-	else:
-		# if MESSAGE == "MORE BLOCKS":
-		# 	more_blocks += 1
-		if MESSAGE == "DRAW":
-			draw += 1
-		elif WINNER == "P2":
-			points += 1
-		else:
-			loss += 1
-			print WINNER,MESSAGE
-	if MESSAGE == "MADE AN INVALID MOVE"	or MESSAGE == "TIMED OUT":
-		print MESSAGE
-
-	# command = raw_input("points:")
+	print WINNER
+	print MESSAGE
 
 if __name__ == '__main__':
 	## get game playing objects
 
-	#  a nice to ay handle errors**
 	if len(sys.argv) != 2:
 		print 'Usage: python simulator.py <option>'
 		print '<option> can be 1 => Random player vs. Random player'
@@ -425,36 +399,21 @@ if __name__ == '__main__':
 	obj2 = ''
 	option = sys.argv[1]
 	if option == '1':
-		obj1 = Player1()
-		obj2 = Player58()
+		obj1 = Team10()
+		obj2 = Player2()
 
 	elif option == '2':
 		obj1 = Player58()
-		obj2 = ManualPlayer()
+		obj2 = Team10()
 	elif option == '3':
-		obj1 = ManualPlayer()
-		obj2 = ManualPlayer()
+		obj1 = Player27()
+		obj2 = Team10()
 	else:
 		print 'Invalid option'
 		sys.exit(1)
 
-	t = 1
-
-	global num
-	while t !=51:
-		print "Game_play ",t
-
-		num = random.uniform(0,1)
-		if num > 0.5:
-			# command = raw_input("command :")
-			simulate(obj2, obj1)
-			# print "you are player1"
-		else:
-			# command = raw_input("command :")
-			simulate(obj1, obj2)
-			# print "you are player2"
-		t+=1
-	print "your points = " , points
-	print "draw = " , draw
-	# print "more_blocks = " , more_blocks
-	print "you loss = ",loss
+	num = random.uniform(0,1)
+	if num > 0.5:
+		simulate(obj2, obj1)
+	else:
+		simulate(obj1, obj2)
