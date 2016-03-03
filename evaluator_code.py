@@ -149,7 +149,9 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2,depth):
 	# print_lists(board_game,block_stat)
 	# command = raw_input("utility:")
 	utility = 0
-
+	utility_stat = 0
+	utility_p1 = 0
+	utility_p2 = 0
 	# defining position of block
 	tempx = move[0]/3
 	tempy = move[1]/3
@@ -165,11 +167,17 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2,depth):
 		block_stat[temp_block_cell] = p2
 	# print "cell =",temp_block_cell
 	# temp_block = [[0 for x in range(3)] for x in range(3)]
-
+	
 	# defining new temp_board
+	countp1 = 0
+	countp2 = 0
 	for i in range(3):
 		for j in range(3):
 			temp_board[i][j] = board_game[i+tempx][j+tempy]
+			if temp_board[i][j] == p1:
+				countp1 += 1
+			elif temp_board[i][j] == p2:
+				countp2 += 1
 
 	# counting number of 'x' and 'o' to assign utility value
 	for i in range(3):
@@ -190,29 +198,29 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2,depth):
 
 		# print ":done"
 		if count2 == 3:
-			utility += 100
+			utility_p1 += 100
 		elif count2 == 2:
-			utility += 10
+			utility_p1 += 10
 		elif count2 == 1:
-			utility += 1
+			utility_p1 += 1
 		if count1 == 3:
-			utility -= 100
+			utility_p2 -= 100
 		elif count1 == 2:
-			utility -= 10
+			utility_p2 -= 10
 		elif count1 == 1:
-			utility -= 1
+			utility_p2 -= 1
 		if count3 == 3:
-			utility += 500
+			utility_stat += 500
 		elif count3 == 2:
-			utility += 50
+			utility_stat += 50
 		elif count3 == 1:
-			utility += 5
+			utility_stat += 5
 		if count4 == 3:
-			utility -= 500
+			utility_stat -= 500
 		elif count4 == 2:
-			utility -= 50
+			utility_stat -= 50
 		elif count4 == 1:
-			utility -= 5
+			utility_stat -= 5
 
 	for j in range(3):
 		count1 = 0
@@ -241,17 +249,17 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2,depth):
 		elif count1 == 1:
 			utility -= 1
 		if count3 == 3:
-			utility += 500
+			utility_stat += 500
 		elif count3 == 2:
-			utility += 50
+			utility_stat += 50
 		elif count3 == 1:
-			utility += 5
+			utility_stat += 5
 		if count4 == 3:
-			utility -= 500
+			utility_stat -= 500
 		elif count4 == 2:
-			utility -= 50
+			utility_stat -= 50
 		elif count4 == 1:
-			utility -= 5
+			utility_stat -= 5
 
 	count1 = 0
 	count2 = 0
@@ -269,29 +277,29 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2,depth):
 				elif block_stat[i*3+j] == p2:
 					count4 += 1
 	if count2 == 3:
-		utility += 100
+		utility_p1 += 100
 	elif count2 == 2:
-		utility += 10
+		utility_p1 += 10
 	elif count2 == 1:
-		utility += 1
+		utility_p1 += 1
 	if count1 == 3:
-		utility -= 100
+		utility_p2 -= 100
 	elif count1 == 2:
-		utility -= 10
+		utility_p2 -= 10
 	elif count1 == 1:
-		utility -= 1
+		utility_p2 -= 1
 	if count3 == 3:
-		utility += 500
+		utility_stat += 500
 	elif count3 == 2:
-		utility += 50
+		utility_stat += 50
 	elif count3 == 1:
-		utility += 5
+		utility_stat += 5
 	if count4 == 3:
-		utility -= 500
+		utility_stat -= 500
 	elif count4 == 2:
-		utility -= 50
+		utility_stat -= 50
 	elif count4 == 1:
-		utility -= 5
+		utility_stat -= 5
 
 	count1 = 0
 	count2 = 0
@@ -309,36 +317,41 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2,depth):
 				elif block_stat[i*3+j] == p2:
 					count4 += 1
 	if count2 == 3:
-		utility += 100
+		utility_p1 += 100
 	elif count2 == 2:
-		utility += 10
+		utility_p1 += 10
 	elif count2 == 1:
-		utility += 1
+		utility_p1 += 1
 	if count1 == 3:
-		utility += 1
-		utility -= 100
+		utility_p2 -= 100
 	elif count1 == 2:
-		utility -= 10
+		utility_p2 -= 10
 	elif count1 == 1:
-		utility -= 1
+		utility_p2 -= 1
 	if count3 == 3:
-		utility += 500
+		utility_stat += 500
 	elif count3 == 2:
-		utility += 50
+		utility_stat += 50
 	elif count3 == 1:
-		utility += 5
+		utility_stat += 5
 	if count4 == 3:
-		utility -= 500
+		utility_stat -= 500
 	elif count4 == 2:
-		utility -= 50
+		utility_stat -= 50
 	elif count4 == 1:
-		utility -= 5
+		utility_stat -= 5
 	
 	if (depth%2) == 1:
-		block_stat[temp_block_cell] = '-'	
+		block_stat[temp_block_cell] = '-'
 	else:
 		block_stat[temp_block_cell] = '-'
+		
+	if utility_p1 < 6 and countp1 == 2:
+			utility_p1 += 250
+	elif utility_p2 >-6 and countp2 ==2:
+			utility_p2 -= 250
 
+	utility += utility_p1 + utility_p2 +utility_stat
 	return utility
 
 # determine which blocks are allowed to move-in
@@ -723,8 +736,8 @@ if __name__ == '__main__':
 	t = 1
 
 	global num
-	while t != 201:
-		print (t)
+	while t != 11:
+		print "Game_play ",t
 
 		num = random.uniform(0,1)
 		if num > 0.5:
