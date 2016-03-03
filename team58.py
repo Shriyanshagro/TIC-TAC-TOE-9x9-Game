@@ -1,3 +1,8 @@
+import time
+global depth_limit
+depth_limit = 0
+import random
+
 class Player58:
 
 	def __init__(self):
@@ -7,12 +12,14 @@ class Player58:
 
 	def move(self,temp_board,temp_block,old_move,flag):
 		#List of permitted blocks, based on old move.
+		start_time = time.time()
 		blocks_allowed  = determine_blocks_allowed(old_move, temp_block)
 		#Get list of empty valid cells
 		cells = get_empty_out_of(temp_board, blocks_allowed,temp_block)
 		alpha = -100000
 		beta = 10000
-		
+		global depth_limit
+		depth_limit = 0
 		countp1 = 0
 		countp2 = 0
 		for i in range(9):
@@ -25,6 +32,9 @@ class Player58:
 		if countp1 > countp2 :
 			p1 = 'x'
 			p2 = 'o'
+		elif countp1 == countp2:
+			p1 = 'x'
+			p2 = 'o'
 		else:
 			p1 = 'o'
 			p2 = 'x'
@@ -32,37 +42,44 @@ class Player58:
 		for i in cells:
 			if beta >alpha :
 				temp_board[i[0]][i[1]]=p1
-				utility_child  = built_tree(temp_board,temp_block,i,0,alpha,beta,p1,p2)
+				utility_child  = built_tree(temp_board,temp_block,i,0,alpha,beta,p1,p2,start_time)
 
 				if alpha < utility_child:
 					alpha = utility_child
 					possible_moves = []
 					possible_moves.append(i)
-				elif beta == utility_child:
+				elif alpha == utility_child:
 					possible_moves.append(i)
 					
 				temp_board[i[0]][i[1]]='-'
 
+		# print (time.time() - start_time),
+		# print depth_limit
 		if len(possible_moves)>1:
-			move = possible_moves[random.randrange(len(possible_moves))]
-			print possible_moves
+			# print "enter"
+			length = random.randrange(len(possible_moves))
+			move = possible_moves[length]
+			# print possible_moves
 			return move
 		else:
 			return possible_moves[0]
 		
 
-def built_tree(temp_board,temp_block,old_move,depth,alpha_p,beta_p,p1,p2):
+def built_tree(temp_board,temp_block,old_move,depth,alpha_p,beta_p,p1,p2,start_time):
 	# making recursive tree
 	# assigning alpha-beta for current node
-	depth_limit = 6
+	global depth_limit
 	alpha = alpha_p
 	beta = beta_p
 	#List of permitted blocks, based on old move.
 	blocks_allowed  = determine_blocks_allowed(old_move, temp_block)
 	#Get list of empty valid cells
 	cells = get_empty_out_of(temp_board,blocks_allowed,temp_block)
-	if depth == depth_limit or cells == []:
+	if cells == [] or (time.time() - start_time)>11.94:
 		utility_value = utility(temp_board,temp_block,old_move,alpha,beta,p1,p2,depth)
+		# print depth,
+		if depth_limit < depth:
+			depth_limit =depth
 		return utility_value
 	else:
 		depth += 1
@@ -70,18 +87,16 @@ def built_tree(temp_board,temp_block,old_move,depth,alpha_p,beta_p,p1,p2):
 			# utility(temp_board,temp_block)
 			if beta > alpha :
 				if ((depth)%2) == 1:
-					# max
+					# min
 					temp_board[i[0]][i[1]]=p2
-					utility_child = built_tree(temp_board,temp_block,i,depth,alpha,beta,p1,p2)
-					# if alpha < utility_child:
-					# 	alpha = utility_child
+					utility_child = built_tree(temp_board,temp_block,i,depth,alpha,beta,p1,p2,start_time)
 					if beta > utility_child:
 							beta = utility_child
 							
 				else:
-					# min
+					# max
 					temp_board[i[0]][i[1]]=p1
-					utility_child = built_tree(temp_board,temp_block,i,depth,alpha,beta,p1,p2)
+					utility_child = built_tree(temp_board,temp_block,i,depth,alpha,beta,p1,p2,start_time)
 					if alpha < utility_child:
 						alpha = utility_child
 
@@ -231,7 +246,10 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2,depth):
 	if utility_p2 <-6 and countp2 ==2 and utility_p1 <12:
 			utility_p2 -= 250
 
-	utility += utility_p1 + utility_p2 +(utility_stat)/10
+	if utility_p1 < 10 and utility_p2 > -1:
+		utility_p1 = 1
+
+	utility += utility_p1 + utility_p2 + utility_stat
 	# print_lists(board_game,block_stat)
 	# print "utility = ",utility,"utility_p1 =",utility_p1,"utility_p2 =",utility_p2,"utility_stat = ",utility_stat
 	return utility
@@ -297,46 +315,55 @@ def define_utility(count1,count2,count3,count4):
 
 		utility_p1 = utility_p2 = utility_stat = 0
 		if count2 == 3:
-			utility_p1 += 300
+			utility_p1 += 150
 			
 		elif count2 == 2:
 			utility_p1 += 10
-		elif count2 == 2 and count1 == 1:
-			utility_p1 -= 9.5
+			if count2 == 2 and count1 == 1:
+				utility_p1 -= 9.5
 		
 		elif count2 == 1:
 			utility_p1 += 1
-		elif count2 == 1 and count1 == 2:
-			utility_p1 += 50
+			if count2 == 1 and count1 == 2:
+				utility_p1 += 50
 		
 		
 		# opponent
 		if count1 == 3:
-			utility_p2 -= 300
+			utility_p2 -= 150
 
 		elif count1 == 2:
 			utility_p2 -= 10
-		elif count1 == 2 and count2 == 1:
-			utility_p2 += 9.5
+			if count1 == 2 and count2 == 1:
+				utility_p2 += 9.5
 
 		elif count1 == 1:
 			utility_p2 -= 0
-		elif count2 == 2 and count1 == 1:
-			utility_p2 -= 50
+			if count2 == 2 and count1 == 1:
+				utility_p2 -= 50
 
 			# board stat
 		if count3 == 3:
-			utility_stat += 500
-		elif count3 == 2:
 			utility_stat += 50
-		elif count3 == 1:
+		elif count3 == 2:
 			utility_stat += 5
+			if count3 == 2 and count4 == 1:
+				utility_p2 -= 4.5
+		elif count3 == 1:
+			utility_stat += 0.5
+			if count3 == 1 and count4 == 2:
+				utility_p1 += 25
+
 		if count4 == 3:
-			utility_stat -= 500
-		elif count4 == 2:
 			utility_stat -= 50
-		elif count4 == 1:
+		elif count4 == 2:
 			utility_stat -= 5
+			if count4 == 2 and count3 == 1:
+				utility_p2 += 4.5
+		elif count4 == 1:
+			utility_stat -= 0
+			if count3 == 2 and count4 == 1:
+				utility_p2 -= 25
 
 		utilityarray = [utility_p1,utility_p2,utility_stat]
 		return utilityarray

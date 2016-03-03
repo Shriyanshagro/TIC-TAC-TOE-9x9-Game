@@ -19,7 +19,7 @@ import signal
 import time
 from team58 import *
 from team27 import *
-
+from manek import *
 global points
 global more_blocks
 global draw
@@ -425,7 +425,7 @@ if __name__ == '__main__':
 	obj2 = ''
 	option = sys.argv[1]
 	if option == '1':
-		obj1 = Player1()
+		obj1 = Player27()
 		obj2 = Player58()
 
 	elif option == '2':
@@ -441,10 +441,11 @@ if __name__ == '__main__':
 	t = 1
 
 	global num
-	while t !=51:
+	while t !=11:
 		print "Game_play ",t
 
 		num = random.uniform(0,1)
+		num = 0.8
 		if num > 0.5:
 			# command = raw_input("command :")
 			simulate(obj2, obj1)
