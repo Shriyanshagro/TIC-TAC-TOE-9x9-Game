@@ -152,6 +152,9 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2,depth):
 	utility_stat = 0
 	utility_p1 = 0
 	utility_p2 = 0
+	# number of 'x' and 'o'
+	countp1 = 0
+	countp2 = 0
 	# defining position of block
 	tempx = move[0]/3
 	tempy = move[1]/3
@@ -169,8 +172,6 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2,depth):
 	# temp_block = [[0 for x in range(3)] for x in range(3)]
 	
 	# defining new temp_board
-	countp1 = 0
-	countp2 = 0
 	for i in range(3):
 		for j in range(3):
 			temp_board[i][j] = board_game[i+tempx][j+tempy]
@@ -180,6 +181,8 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2,depth):
 				countp2 += 1
 
 	# counting number of 'x' and 'o' to assign utility value
+	
+	# counting in a row
 	for i in range(3):
 		count1 = 0
 		count2 = 0
@@ -346,9 +349,9 @@ def utility(board_game,block_stat,move,alpha,beta,p1,p2,depth):
 	else:
 		block_stat[temp_block_cell] = '-'
 		
-	if utility_p1 < 6 and countp1 == 2:
+	if utility_p1 < 6 and countp1 == 2 and utility_p2 < -12:
 			utility_p1 += 250
-	elif utility_p2 >-6 and countp2 ==2:
+	if utility_p2 <-6 and countp2 ==2 and utility_p1 <12:
 			utility_p2 -= 250
 
 	utility += utility_p1 + utility_p2 +utility_stat
@@ -736,7 +739,7 @@ if __name__ == '__main__':
 	t = 1
 
 	global num
-	while t != 11:
+	while t != 51:
 		print "Game_play ",t
 
 		num = random.uniform(0,1)
