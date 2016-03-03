@@ -17,21 +17,20 @@ import sys
 import random
 import signal
 import time
+from team58 import *
 
-global depth_limit,num,points
+global points
 global more_blocks
 global draw
 global loss
 loss =0
 points = 0
-depth_limit = 4
 draw = 0
 more_blocks = 0
 
 def handler(signum, frame):
     #print 'Signal handler called with signal', signum
     raise TimedOutExc()
-
 
 class ManualPlayer:
 	def __init__(self):
@@ -56,306 +55,6 @@ class Player1:
         # length = cells
 		#Choose a move based on some algorithm, here it is a random move.
 		return cells[random.randrange(len(cells))]
-
-
-class Player2:
-
-	def __init__(self):
-		# You may initialize your object here and use any variables for storing throughout the game
-		pass
-
-
-	def move(self,temp_board,temp_block,old_move,flag):
-		#List of permitted blocks, based on old move.
-		blocks_allowed  = determine_blocks_allowed(old_move, temp_block)
-		# print blocks_allowed
-		#Get list of empty valid cells
-		cells = get_empty_out_of(temp_board, blocks_allowed,temp_block)
-		alpha = -100000
-		beta = 10000
-
-		global num
-
-		if num > 0.5:
-			p1 = 'x'
-			p2 = 'o'
-		else:
-			p1 = 'o'
-			p2 = 'x'
-
-		for i in cells:
-			if beta >alpha :
-				temp_board[i[0]][i[1]]=p1
-				# print i
-				utility_child  = built_tree(temp_board,temp_block,i,1,alpha,beta,p1,p2)
-				if beta > utility_child:
-					beta = utility_child
-					move = i
-				temp_board[i[0]][i[1]]='-'
-
-		return move
-
-def built_tree(temp_board,temp_block,old_move,depth,alpha_p,beta_p,p1,p2):
-	# making recursive tree
-	# assigning alpha-beta for current node
-	alpha = alpha_p
-	beta = beta_p
-	#List of permitted blocks, based on old move.
-	blocks_allowed  = determine_blocks_allowed(old_move, temp_block)
-	# print blocks_allowed
-	#Get list of empty valid cells
-	cells = get_empty_out_of(temp_board, blocks_allowed,temp_block)
-	global depth_limit
-
-	if depth == depth_limit+1 or cells == []:
-		#define utility value
-		# print "got"
-		# print "blocks_allowed=",blocks_allowed,"move = ",old_move
-		utility_value = utility(temp_board,temp_block,old_move,alpha,beta,p1,p2,depth)
-		return utility_value
-
-	else:
-		depth += 1
-		for i in cells:
-			# utility(temp_board,temp_block)
-			if beta > alpha :
-				if (depth%2) == 1:
-					# max
-					temp_board[i[0]][i[1]]=p1
-					# print "hello",depth
-					utility_child = built_tree(temp_board,temp_block,i,depth,alpha,beta,p1,p2)
-					if alpha < utility_child:
-						alpha = utility_child
-				else:
-					# min
-					temp_board[i[0]][i[1]]=p2
-					utility_child = built_tree(temp_board,temp_block,i,depth,alpha,beta,p1,p2)
-					if beta > utility_child:
-						beta = utility_child
-
-				temp_board[i[0]][i[1]]='-'
-		depth -= 1
-
-		if depth%2 == 1:
-			return alpha
-		else:
-			return beta
-
-
-def utility(board_game,block_stat,move,alpha,beta,p1,p2,depth):
-	# determine utility value
-	# 8 lines
-	# decide utility value for each state
-	# print_lists(board_game,block_stat)
-	# command = raw_input("utility:")
-	utility = 0
-	utility_stat = 0
-	utility_p1 = 0
-	utility_p2 = 0
-	# number of 'x' and 'o'
-	countp1 = 0
-	countp2 = 0
-	# defining position of block
-	tempx = move[0]/3
-	tempy = move[1]/3
-	# print "tempx=",tempx,"tempy=",tempy
-	temp_block_cell = tempx*3 + tempy
-	tempx *= 3;
-	tempy *= 3
-	temp_board = [[0 for x in range(3)] for x in range(3)]
-	if (depth%2) == 1:
-		block_stat[temp_block_cell] = p1
-	# # print block_stat
-	else:
-		block_stat[temp_block_cell] = p2
-	# print "cell =",temp_block_cell
-	# temp_block = [[0 for x in range(3)] for x in range(3)]
-	
-	# defining new temp_board
-	for i in range(3):
-		for j in range(3):
-			temp_board[i][j] = board_game[i+tempx][j+tempy]
-			if temp_board[i][j] == p1:
-				countp1 += 1
-			elif temp_board[i][j] == p2:
-				countp2 += 1
-
-	# counting number of 'x' and 'o' to assign utility value
-	
-	# counting in a row
-	for i in range(3):
-		count1 = 0
-		count2 = 0
-		count3 = 0
-		count4 = 0
-		for j in range(3):
-			if temp_board[i][j] == p1:
-				count2 += 1
-			elif temp_board[i][j] == p2:
-				count1 += 1
-			if block_stat[i*3+j] == p1:
-				count3 += 1
-			elif block_stat[i*3+j] == p2:
-				count4 += 1
-			# print "acha"
-
-		# print ":done"
-		if count2 == 3:
-			utility_p1 += 100
-		elif count2 == 2:
-			utility_p1 += 10
-		elif count2 == 1:
-			utility_p1 += 1
-		if count1 == 3:
-			utility_p2 -= 100
-		elif count1 == 2:
-			utility_p2 -= 10
-		elif count1 == 1:
-			utility_p2 -= 1
-		if count3 == 3:
-			utility_stat += 500
-		elif count3 == 2:
-			utility_stat += 50
-		elif count3 == 1:
-			utility_stat += 5
-		if count4 == 3:
-			utility_stat -= 500
-		elif count4 == 2:
-			utility_stat -= 50
-		elif count4 == 1:
-			utility_stat -= 5
-
-	for j in range(3):
-		count1 = 0
-		count2 = 0
-		count3 = 0
-		count4 = 0
-		for i in range(3):
-			if temp_board[i][j] == p1:
-				count2 += 1
-			elif temp_board[i][j] == p2:
-				count1 += 1
-			if block_stat[i*3+j] == p1:
-				count3 += 1
-			elif block_stat[i*3+j] == p2:
-				count4 += 1
-		if count2 == 3:
-			utility += 100
-		elif count2 == 2:
-			utility += 10
-		elif count2 == 1:
-			utility += 1
-		if count1 == 3:
-			utility -= 100
-		elif count1 == 2:
-			utility -= 10
-		elif count1 == 1:
-			utility -= 1
-		if count3 == 3:
-			utility_stat += 500
-		elif count3 == 2:
-			utility_stat += 50
-		elif count3 == 1:
-			utility_stat += 5
-		if count4 == 3:
-			utility_stat -= 500
-		elif count4 == 2:
-			utility_stat -= 50
-		elif count4 == 1:
-			utility_stat -= 5
-
-	count1 = 0
-	count2 = 0
-	count3 = 0
-	count4 = 0
-	for j in range(3):
-		for i in range(3):
-			if i==j:
-				if temp_board[i][j] == p1:
-					count2 += 1
-				elif temp_board[i][j] == p2:
-					count1 += 1
-				if block_stat[i*3+j] == p1:
-					count3 += 1
-				elif block_stat[i*3+j] == p2:
-					count4 += 1
-	if count2 == 3:
-		utility_p1 += 100
-	elif count2 == 2:
-		utility_p1 += 10
-	elif count2 == 1:
-		utility_p1 += 1
-	if count1 == 3:
-		utility_p2 -= 100
-	elif count1 == 2:
-		utility_p2 -= 10
-	elif count1 == 1:
-		utility_p2 -= 1
-	if count3 == 3:
-		utility_stat += 500
-	elif count3 == 2:
-		utility_stat += 50
-	elif count3 == 1:
-		utility_stat += 5
-	if count4 == 3:
-		utility_stat -= 500
-	elif count4 == 2:
-		utility_stat -= 50
-	elif count4 == 1:
-		utility_stat -= 5
-
-	count1 = 0
-	count2 = 0
-	count3 = 0
-	count4 = 0
-	for j in range(3):
-		for i in range(3):
-			if i==1 and j==1 or i==0 and j ==2 or i==2 and j==0:
-				if temp_board[i][j] == p1:
-					count2 += 1
-				elif temp_board[i][j] == p2:
-					count1 += 1
-				if block_stat[i*3+j] == p1:
-					count3 += 1
-				elif block_stat[i*3+j] == p2:
-					count4 += 1
-	if count2 == 3:
-		utility_p1 += 100
-	elif count2 == 2:
-		utility_p1 += 10
-	elif count2 == 1:
-		utility_p1 += 1
-	if count1 == 3:
-		utility_p2 -= 100
-	elif count1 == 2:
-		utility_p2 -= 10
-	elif count1 == 1:
-		utility_p2 -= 1
-	if count3 == 3:
-		utility_stat += 500
-	elif count3 == 2:
-		utility_stat += 50
-	elif count3 == 1:
-		utility_stat += 5
-	if count4 == 3:
-		utility_stat -= 500
-	elif count4 == 2:
-		utility_stat -= 50
-	elif count4 == 1:
-		utility_stat -= 5
-	
-	if (depth%2) == 1:
-		block_stat[temp_block_cell] = '-'
-	else:
-		block_stat[temp_block_cell] = '-'
-		
-	if utility_p1 < 6 and countp1 == 2 and utility_p2 < -12:
-			utility_p1 += 250
-	if utility_p2 <-6 and countp2 ==2 and utility_p1 <12:
-			utility_p2 -= 250
-
-	utility += utility_p1 + utility_p2 +utility_stat
-	return utility
 
 # determine which blocks are allowed to move-in
 def determine_blocks_allowed(old_move, block_stat):
@@ -553,6 +252,7 @@ def decide_winner_and_get_message(player,status, message):
 
 
 def print_lists(gb, bs):
+	# # command = raw_input("??")
 	# print '=========== Game Board ==========='
 	# for i in range(9):
 	# 	if i > 0 and i % 3 == 0:
@@ -562,8 +262,8 @@ def print_lists(gb, bs):
 	# 			print " " + gb[i][j],
 	# 		else:
 	# 			print gb[i][j],
-	#
 	# 	print
+	#
 	# print "=================================="
 	#
 	# print "=========== Block Status ========="
@@ -590,7 +290,7 @@ def simulate(obj1,obj2):
 
 	WINNER = ''
 	MESSAGE = ''
-	TIMEALLOWED = 12
+	TIMEALLOWED = 1200000000
 	p1_pts=0
 	p2_pts=0
 
@@ -727,7 +427,7 @@ if __name__ == '__main__':
 		obj2 = Player2()
 
 	elif option == '2':
-		obj1 = Player1()
+		obj1 = Player2()
 		obj2 = ManualPlayer()
 	elif option == '3':
 		obj1 = ManualPlayer()
