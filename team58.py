@@ -33,37 +33,28 @@ class Player58:
 			if beta >alpha :
 				temp_board[i[0]][i[1]]=p1
 				utility_child  = built_tree(temp_board,temp_block,i,0,alpha,beta,p1,p2)
-				# print utility_child
-				# if beta > utility_child:
-				# 	beta = utility_child
-				# 	possible_moves = []
-				# 	possible_moves.append(i)
-				# elif beta == utility_child:
-				# 	possible_moves.append(i)
+
 				if alpha < utility_child:
 					alpha = utility_child
-					move = i
-					# possible_moves = []
-					# possible_moves.append(i)
-				# elif alpha == utility_child:
-				# 	possible_moves.append(i)
+					possible_moves = []
+					possible_moves.append(i)
+				elif beta == utility_child:
+					possible_moves.append(i)
 					
 				temp_board[i[0]][i[1]]='-'
 
-		# if len(possible_moves)>1:
-		# 	move = possible_moves[random.randrange(len(possible_moves))]
-		# 	# print possible_moves
-		# 	return move
-		# else:
-		# 	return possible_moves[0]
+		if len(possible_moves)>1:
+			move = possible_moves[random.randrange(len(possible_moves))]
+			print possible_moves
+			return move
+		else:
+			return possible_moves[0]
 		
-		# print move
-		return move
 
 def built_tree(temp_board,temp_block,old_move,depth,alpha_p,beta_p,p1,p2):
 	# making recursive tree
 	# assigning alpha-beta for current node
-	depth_limit = 5
+	depth_limit = 6
 	alpha = alpha_p
 	beta = beta_p
 	#List of permitted blocks, based on old move.
