@@ -434,6 +434,9 @@ if __name__ == '__main__':
 	elif option == '3':
 		obj1 = ManualPlayer()
 		obj2 = ManualPlayer()
+	elif option == '4':
+		obj1 = Player1()
+		obj2 = Player58()
 	else:
 		print 'Invalid option'
 		sys.exit(1)
@@ -441,7 +444,7 @@ if __name__ == '__main__':
 	t = 1
 
 	global num
-	while t !=11:
+	while t !=2:
 		print "Game_play ",t
 
 		num = random.uniform(0,1)
